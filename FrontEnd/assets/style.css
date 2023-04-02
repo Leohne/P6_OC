@@ -78,12 +78,34 @@ h1 > span {
 ;
 }
 
-h2{
+h2, .filtre{
 	font-family: 'Syne';
 	font-weight: 700;
 	font-size: 30px;
 	color: #1D6154
 }
+
+.filtre{
+	display: flex;
+	align-items: center;
+	flex-direction: column;
+	font-size: 20px;
+	margin-bottom: 20px;
+	padding-bottom: 10px;
+	cursor: pointer;
+}
+
+.filtre_li{
+	margin-top: -100%;
+	font-size: 18px;
+	cursor: pointer;
+}
+
+ .filtre:hover .filtre_li{
+	margin-top: 0;
+	transition: 0.5s ease-in-out;
+}
+
 nav ul {
 	display: flex;
 	align-items: center;
