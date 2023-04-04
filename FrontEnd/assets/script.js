@@ -1,5 +1,4 @@
 const gallery = document.querySelector(".gallery")
-const category = document.querySelector(".filtre")
 
 const allWorks = new Set()
 const allCats = new Set()
@@ -14,12 +13,13 @@ async function init() {
         allCats.add(cat)
     }
     displayWorks(allWorks)
-    displayCats()
+    displayCatsContainer()
 }
 init()
 
+// requete serveur
 async function getDatabaseInfo(type) {
-    const response = await fetch("http://localhost:5678/api/"+type)
+    const response = await fetch("http://localhost:5678/api/" + type)
     if (response.ok) {
         return response.json()
     } else {
@@ -27,10 +27,52 @@ async function getDatabaseInfo(type) {
     }
 }
 
-async function displayWorks(works) {
+// creation des boutons de catégorie
+function displayCatsContainer() {
+    const contain = document.querySelector('.ContainFilter')
+    const fragment = document.createDocumentFragment()
+
+    let neutral = document.createElement('button')
+    neutral.innerHTML = "Tous"
+    neutral.classList.add('active', 'filtre')
+    neutral.dataset.id = 0
+
+    fragment.appendChild(neutral)
+
+    for (const cat of allCats) {
+        let NewCat = document.createElement('button')
+        NewCat.innerHTML = `${cat.name}`
+        NewCat.classList.add('filtre')
+        NewCat.dataset.id = `${cat.id}`
+        fragment.appendChild(NewCat)
+    }
+    contain.appendChild(fragment)
+    addFiltterListener()
+}
+
+function addFiltterListener() {
+    const buttons = document.querySelectorAll(".filtre")
+    for (const button of buttons) {
+        button.addEventListener("click", (e) => {
+            const clickedButton = e.target
+            const cat_id = parseInt(clickedButton.dataset.id)
+            if (cat_id == 0) {
+                displayWorks(allWorks)
+            } else {
+                const filtredWorks = [...allWorks].filter(work => work.categoryId == cat_id)
+                displayWorks(filtredWorks)
+            }
+            document.querySelector(".active").classList.remove("active")
+            clickedButton.classList.add("active")
+        })
+    }
+}
+
+// mise en page des images 
+function displayWorks(works) {
     gallery.innerHTML = ""
     const fragment = document.createDocumentFragment()
-    
+
     for (const work of works) {
         let creaFig = document.createElement('figure')
         creaFig.innerHTML = `
@@ -38,30 +80,23 @@ async function displayWorks(works) {
         <figcaption>${work.title}</figcaption>`
         fragment.appendChild(creaFig)
     }
-   gallery.append(fragment)
+    gallery.append(fragment)
 }
 
-async function displayCats() {
-    const fragment = document.createDocumentFragment()
-    
-    for(const cat of allCats){
-        let NewCat = document.createElement('li')
-        NewCat.innerHTML = `${cat.name}`
-        NewCat.id = `${cat.id}` 
-        NewCat.classList.add('filtre_li') 
-        fragment.appendChild(NewCat)
-    }
-    category.append(fragment)
-}
-/* Faire une fonction ou filter est itéré par [i]. Mettre dans cette fonction le filtre
-pour les images de la galerie*/
-const filter = document.querySelectorAll('.filtre_li')
-// document.addEventListener("click", (e) => {
-// 	e.target.dataset
+
+
+
+
+
+
+
+// document.addEventListener("DOMContentLoaded", () => {
+//     const container = document.querySelectorAll(".divParent")[0];
+//     for (let i = 0; i < 3; i++) {
+//         let child = document.createElement("div");
+//         container.appendChild(child);
+//         child.classList.add("divChild")
+//     }
+//     const children = document.querySelectorAll(".divChild");
+//     alert(`There are ${children.length} children`);
 // })
-
-// console.log(allCats.size)
-
-// async function x(){
-
-// }
