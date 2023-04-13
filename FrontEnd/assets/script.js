@@ -27,6 +27,22 @@ async function getDatabaseInfo(type) {
     }
 }
 
+
+// mise en page des images 
+function displayWorks(works) {
+    gallery.innerHTML = ""
+    const fragment = document.createDocumentFragment()
+
+    for (const work of works) {
+        let creaFig = document.createElement('figure')
+        creaFig.innerHTML = `
+        <img src="${work.imageUrl}" alt="${work.title}"
+        <figcaption>${work.title}</figcaption>`
+        fragment.appendChild(creaFig)
+    }
+    gallery.append(fragment)
+}
+
 // creation des boutons de catégorie
 function displayCatsContainer() {
     const contain = document.querySelector('.ContainFilter')
@@ -68,35 +84,26 @@ function addFiltterListener() {
     }
 }
 
-// mise en page des images 
-function displayWorks(works) {
-    gallery.innerHTML = ""
-    const fragment = document.createDocumentFragment()
-
-    for (const work of works) {
-        let creaFig = document.createElement('figure')
-        creaFig.innerHTML = `
-        <img src="${work.imageUrl}" alt="${work.title}"
-        <figcaption>${work.title}</figcaption>`
-        fragment.appendChild(creaFig)
+// Vérification Identifiant Log In.
+async function log() {
+    let email = querySelector('#email')
+    let user = {
+        email: ``,
+        password: 'Smith'
+      };
+      
+      let response = await fetch('http://localhost:5678/api/users/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json;charset=utf-8'
+        },
+        body: JSON.stringify(user)
+      });
+      
+      let result = await response.json();
+      alert(result.message);
     }
-    gallery.append(fragment)
-}
 
 
-
-
-
-
-
-
-// document.addEventListener("DOMContentLoaded", () => {
-//     const container = document.querySelectorAll(".divParent")[0];
-//     for (let i = 0; i < 3; i++) {
-//         let child = document.createElement("div");
-//         container.appendChild(child);
-//         child.classList.add("divChild")
-//     }
-//     const children = document.querySelectorAll(".divChild");
-//     alert(`There are ${children.length} children`);
-// })
+    let email = document.querySelectorAll('#email')
+console.log(email)
