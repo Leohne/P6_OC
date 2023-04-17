@@ -14,8 +14,9 @@ async function init() {
     }
     displayWorks(allWorks)
     displayCatsContainer()
+
 }
-init()
+//init()
 
 // requete serveur
 async function getDatabaseInfo(type) {
@@ -84,26 +85,38 @@ function addFiltterListener() {
     }
 }
 
-// Vérification Identifiant Log In.
-async function log() {
-    let email = querySelector('#email')
-    let user = {
-        email: ``,
-        password: 'Smith'
-      };
-      
-      let response = await fetch('http://localhost:5678/api/users/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json;charset=utf-8'
-        },
-        body: JSON.stringify(user)
-      });
-      
-      let result = await response.json();
-      alert(result.message);
+function adminAccess() {
+    const token = localStorage.getItem('token')
+    if (token != null) {
+        interfaceAdmin()
+    } else {
+        const edition = document.querySelector('.mode_edition')
+        edition.style.display ="none"
+        init()
     }
 
+}
+adminAccess()
 
-    let email = document.querySelectorAll('#email')
-console.log(email)
+async function interfaceAdmin() {
+    const edition = document.querySelector('.mode_edition')
+    edition.innerHTML = `<i class="fa-solid fa-pen-to-square title_edition"></i>
+    <p class="title_edition edit">Mode édition</p><p class="publish_edition edit">publier les changements</p>`
+
+    const logout = document.querySelector('#logout')
+    logout.innerHTML = "logout"
+
+    const modiFig = document.querySelector('#introduction > figure')
+    const modifImg = document.createElement('div')
+    modifImg.innerHTML = `<div class="modifier"><i class="fa-solid fa-pen-to-square modifier_placement modifier_cursor"></i>
+    <p class="modifier_cursor">Modifier</p></div>`
+    modiFig.append(modifImg)
+    
+    const projet = document.querySelector('#portfolio > h2')
+    projet.innerHTML = `<div class="modifier projet-modif"><h2>Mes Projets</h2><div class="projet_placement"><i class="fa-solid fa-pen-to-square"></i>
+    <p>Modifier</p></div></div>`
+    const filter = document.querySelector('.ContainFilter')
+    filter.style.display = "none"
+    init()
+}
+
