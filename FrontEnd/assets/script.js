@@ -16,7 +16,6 @@ async function init() {
     displayCatsContainer()
 
 }
-//init()
 
 // requete serveur
 async function getDatabaseInfo(type) {
@@ -27,7 +26,6 @@ async function getDatabaseInfo(type) {
         console.log(response.error);
     }
 }
-
 
 // mise en page des images 
 function displayWorks(works) {
@@ -85,6 +83,7 @@ function addFiltterListener() {
     }
 }
 
+//Affichage conditionné (si utilisateur connecté ou non)
 function adminAccess() {
     const token = localStorage.getItem('token')
     if (token != null) {
@@ -98,25 +97,37 @@ function adminAccess() {
 }
 adminAccess()
 
+// fonction de l'affichage accueil avec accès login.
 async function interfaceAdmin() {
+
+    // bande noir "appliquer changement"
     const edition = document.querySelector('.mode_edition')
     edition.innerHTML = `<i class="fa-solid fa-pen-to-square title_edition"></i>
     <p class="title_edition edit">Mode édition</p><p class="publish_edition edit">publier les changements</p>`
 
+    //login > logout
     const logout = document.querySelector('#logout')
     logout.innerHTML = "logout"
 
+    // icone + "modifier" sous img
     const modiFig = document.querySelector('#introduction > figure')
     const modifImg = document.createElement('div')
     modifImg.innerHTML = `<div class="modifier"><i class="fa-solid fa-pen-to-square modifier_placement modifier_cursor"></i>
     <p class="modifier_cursor">Modifier</p></div>`
     modiFig.append(modifImg)
     
+    // icone + "modifier" à droite du h2 "projet"
     const projet = document.querySelector('#portfolio > h2')
     projet.innerHTML = `<div class="modifier projet-modif"><h2>Mes Projets</h2><div class="projet_placement"><i class="fa-solid fa-pen-to-square"></i>
     <p>Modifier</p></div></div>`
+
+    //cache des filtres
     const filter = document.querySelector('.ContainFilter')
     filter.style.display = "none"
+    
     init()
 }
+
+const modifProjet = document.querySelector('.projet_placement')
+console.log(modifProjet)
 
