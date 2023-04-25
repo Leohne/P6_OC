@@ -14,8 +14,12 @@ async function init() {
     }
     displayWorks(allWorks)
     displayCatsContainer()
-
+    adminAccess()
+    logout()
+    modal(allWorks)
+    toggleModale()
 }
+init()
 
 // requete serveur
 async function getDatabaseInfo(type) {
@@ -86,16 +90,14 @@ function addFiltterListener() {
 //Affichage conditionné (si utilisateur connecté ou non)
 function adminAccess() {
     const token = localStorage.getItem('token')
-    if (token != null) {
+    if (token) {
         interfaceAdmin()
     } else {
         const edition = document.querySelector('.mode_edition')
         edition.style.display ="none"
-        init()
     }
 
 }
-adminAccess()
 
 // fonction de l'affichage accueil avec accès login.
 async function interfaceAdmin() {
@@ -119,15 +121,63 @@ async function interfaceAdmin() {
     // icone + "modifier" à droite du h2 "projet"
     const projet = document.querySelector('#portfolio > h2')
     projet.innerHTML = `<div class="modifier projet-modif"><h2>Mes Projets</h2><div class="projet_placement"><i class="fa-solid fa-pen-to-square"></i>
-    <p>Modifier</p></div></div>`
+    <p class="modif_modal modalToggle">Modifier</p></div></div>`
 
     //cache des filtres
     const filter = document.querySelector('.ContainFilter')
     filter.style.display = "none"
-    
-    init()
+
 }
 
-const modifProjet = document.querySelector('.projet_placement')
-console.log(modifProjet)
+function logout() {
+    const token = localStorage.getItem('token')
+    const logout = document.querySelector('#logout')
+    logout.addEventListener('click', (e) => {
+        if(token) {
+            localStorage.removeItem('token')
+            window.location.replace("/index.html");
+        }
+    })
+}
 
+function toggleModale() {
+    const moToggle = document.querySelectorAll('.modalToggle')
+
+    moToggle.forEach( moToggle => moToggle.addEventListener('click', toggleContainer ))
+}
+
+function toggleContainer(){    
+    const modalContainer = document.querySelector('.modalContainer')
+    modalContainer.classList.toggle('current')
+}
+
+
+function modal() {
+    const modal = document.querySelector('.modalContainer')
+    const modalDiv = document.createElement('div')
+        modalDiv.innerHTML = `<div class="modalOverlay modalToggle"><div class="modalScreen">
+        <button class="modalCross modalToggle">X</button>
+        <div class="modalGalerie">
+        <h2>Galerie photo</h2>
+        <div class=" gallery gallery_modal">
+        <div class="modalLine"></div>
+        <button class="addBtn">Ajouter une photo</button><p class="suppr">Supprimer la galerie</p>
+        </div></div></div></div>`
+        modal.append(modalDiv)
+        displayWorksModal()
+}
+
+async function displayWorksModal(allWorks) {
+    const modalGalerie = document.querySelector('.gallery_modal')
+    gallery.innerHTML = ""
+    const fragment = document.createDocumentFragment()
+
+    for (const work of allWorks) {
+        let creaFig = document.createElement('figure')
+        creaFig.innerHTML = `
+        <img src="${work.imageUrl}" alt="${work.title}"
+        <figcaption>${work.title}</figcaption>`
+        fragment.appendChild(creaFig)
+    }
+    modalGalerie.append(fragment)
+}
