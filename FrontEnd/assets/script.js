@@ -2,6 +2,7 @@ const gallery = document.querySelector(".gallery")
 
 const allWorks = new Set()
 const allCats = new Set()
+const allWorksModal = new Set()
 
 async function init() {
     const works = await getDatabaseInfo("works")
@@ -16,10 +17,10 @@ async function init() {
     displayCatsContainer()
     adminAccess()
     logout()
-    modal(allWorks)
     toggleModale()
 }
 init()
+modal()
 
 // requete serveur
 async function getDatabaseInfo(type) {
@@ -39,7 +40,7 @@ function displayWorks(works) {
     for (const work of works) {
         let creaFig = document.createElement('figure')
         creaFig.innerHTML = `
-        <img src="${work.imageUrl}" alt="${work.title}"
+        <img src="${work.imageUrl}" alt="${work.title}">
         <figcaption>${work.title}</figcaption>`
         fragment.appendChild(creaFig)
     }
@@ -94,7 +95,7 @@ function adminAccess() {
         interfaceAdmin()
     } else {
         const edition = document.querySelector('.mode_edition')
-        edition.style.display ="none"
+        edition.style.display = "none"
     }
 
 }
@@ -117,7 +118,7 @@ async function interfaceAdmin() {
     modifImg.innerHTML = `<div class="modifier"><i class="fa-solid fa-pen-to-square modifier_placement modifier_cursor"></i>
     <p class="modifier_cursor">Modifier</p></div>`
     modiFig.append(modifImg)
-    
+
     // icone + "modifier" à droite du h2 "projet"
     const projet = document.querySelector('#portfolio > h2')
     projet.innerHTML = `<div class="modifier projet-modif"><h2>Mes Projets</h2><div class="projet_placement"><i class="fa-solid fa-pen-to-square"></i>
@@ -128,55 +129,63 @@ async function interfaceAdmin() {
     filter.style.display = "none"
 
 }
-
+//Déconnecter le profil
 function logout() {
     const token = localStorage.getItem('token')
     const logout = document.querySelector('#logout')
     logout.addEventListener('click', (e) => {
-        if(token) {
+        if (token) {
             localStorage.removeItem('token')
             window.location.replace("/index.html");
         }
     })
 }
-
+//Affichage & fermeture du modale
 function toggleModale() {
     const moToggle = document.querySelectorAll('.modalToggle')
 
-    moToggle.forEach( moToggle => moToggle.addEventListener('click', toggleContainer ))
+    moToggle.forEach(moToggle => moToggle.addEventListener('click', toggleContainer))
 }
 
-function toggleContainer(){    
+function toggleContainer() {
     const modalContainer = document.querySelector('.modalContainer')
     modalContainer.classList.toggle('current')
 }
 
-
-function modal() {
+//Création du modale
+async function modal() {
     const modal = document.querySelector('.modalContainer')
     const modalDiv = document.createElement('div')
-        modalDiv.innerHTML = `<div class="modalOverlay modalToggle"><div class="modalScreen">
+    modalDiv.innerHTML = `<div class="modalOverlay modalToggle"><div class="modalScreen">
         <button class="modalCross modalToggle">X</button>
         <div class="modalGalerie">
         <h2>Galerie photo</h2>
-        <div class=" gallery gallery_modal">
+        <div class="gallery_modal"></div>
+        <div class="modalFooter">
         <div class="modalLine"></div>
-        <button class="addBtn">Ajouter une photo</button><p class="suppr">Supprimer la galerie</p>
+        <button class="addBtn">Ajouter une photo</button>
+        <p class="suppr">Supprimer la galerie</p>
         </div></div></div></div>`
-        modal.append(modalDiv)
-        displayWorksModal()
-}
+    modal.append(modalDiv)
+    const works = await getDatabaseInfo("works")
+    for (const modWork of works) {
+       allWorksModal.add(modWork)
+    }
+    displayWorksModal(allWorksModal)
+ }
 
-async function displayWorksModal(allWorks) {
+//affichage des photos dans la modale
+function displayWorksModal(works) {
     const modalGalerie = document.querySelector('.gallery_modal')
     gallery.innerHTML = ""
     const fragment = document.createDocumentFragment()
 
-    for (const work of allWorks) {
+    for (const work of works) {
         let creaFig = document.createElement('figure')
         creaFig.innerHTML = `
-        <img src="${work.imageUrl}" alt="${work.title}"
-        <figcaption>${work.title}</figcaption>`
+        <img src="${work.imageUrl}" alt="${work.title}">
+        <i class="fa-solid fa-trash-can"></i>
+        <figcaption>éditer</figcaption>`
         fragment.appendChild(creaFig)
     }
     modalGalerie.append(fragment)
