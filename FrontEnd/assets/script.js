@@ -1,4 +1,5 @@
 const gallery = document.querySelector(".gallery")
+const token = localStorage.getItem("token")
 
 const allWorks = new Set()
 const allCats = new Set()
@@ -15,12 +16,14 @@ async function init() {
     }
     displayWorks(allWorks)
     displayCatsContainer()
-    adminAccess()
-    logout()
-    toggleModale()
+    if (token) {
+        interfaceAdmin()
+        logout()
+        createModalGallery()
+        createModalAdd()
+    }
 }
 init()
-modal()
 
 // requete serveur
 async function getDatabaseInfo(type) {
@@ -88,23 +91,14 @@ function addFiltterListener() {
     }
 }
 
-//Affichage conditionné (si utilisateur connecté ou non)
-function adminAccess() {
-    const token = localStorage.getItem('token')
-    if (token) {
-        interfaceAdmin()
-    } else {
-        const edition = document.querySelector('.mode_edition')
-        edition.style.display = "none"
-    }
 
-}
 
 // fonction de l'affichage accueil avec accès login.
 async function interfaceAdmin() {
 
     // bande noir "appliquer changement"
     const edition = document.querySelector('.mode_edition')
+    edition.style.display = "flex"
     edition.innerHTML = `<i class="fa-solid fa-pen-to-square title_edition"></i>
     <p class="title_edition edit">Mode édition</p><p class="publish_edition edit">publier les changements</p>`
 
@@ -131,56 +125,71 @@ async function interfaceAdmin() {
 }
 //Déconnecter le profil
 function logout() {
-    const token = localStorage.getItem('token')
     const logout = document.querySelector('#logout')
     logout.addEventListener('click', (e) => {
-        if (token) {
-            localStorage.removeItem('token')
-            window.location.replace("/index.html");
+        e.preventDefault()
+        localStorage.removeItem('token')
+        window.location.reload()
+    })
+}
+
+function openCloseModal(name) {
+    var modal = document.getElementById("modal" + name);
+
+
+    // Ouvrir la modale
+    var btn = document.querySelector(".projet_placement");
+
+    // fermer la modale avec la croix
+    var close_btn = document.querySelector("#closeModal" + name);
+
+    // evenement pour ouvrir la modale
+    btn.addEventListener("click", (e) => {
+        modal.style.display = "flex";
+    })
+
+    // evenement pour fermer la modale sur la croix
+    close_btn.addEventListener("click", (e) => {
+        modal.style.display = "none";
+    })
+
+    //evenement pour fermer la modale en cliquand en dehors de la modale
+    window.addEventListener("click", (e) => {
+        if (e.target == modal) {
+            modal.style.display = "none";
         }
     })
 }
-//Affichage & fermeture du modale
-function toggleModale() {
-    const moToggle = document.querySelectorAll('.modalToggle')
-
-    moToggle.forEach(moToggle => moToggle.addEventListener('click', toggleContainer))
-}
-
-function toggleContainer() {
-    const modalContainer = document.querySelector('.modalContainer')
-    modalContainer.classList.toggle('current')
-}
 
 //Création du modale
-async function modal() {
-    const modal = document.querySelector('.modalContainer')
+function createModalGallery() {
+    const modal = document.querySelector('#modalGallery')
     const modalDiv = document.createElement('div')
-    modalDiv.innerHTML = `<div class="modalOverlay modalToggle"><div class="modalScreen">
-        <button class="modalCross modalToggle">X</button>
-        <div class="modalGalerie">
+    modalDiv.classList.add("modalScreen")
+    modalDiv.innerHTML = `
+        <div class="cross"><p class="modalCross modalToggle" id="closeModalGallery">X</p></div>
         <h2>Galerie photo</h2>
         <div class="gallery_modal"></div>
         <div class="modalFooter">
         <div class="modalLine"></div>
         <button class="addBtn">Ajouter une photo</button>
         <p class="suppr">Supprimer la galerie</p>
-        </div></div></div></div>`
+        </div>`
     modal.append(modalDiv)
-    const works = await getDatabaseInfo("works")
-    for (const modWork of works) {
-       allWorksModal.add(modWork)
-    }
-    displayWorksModal(allWorksModal)
- }
+    displayWorksModal()
+    openCloseModal("Gallery")
+}
 
+// function inModalScreen {
+    
+// }
 //affichage des photos dans la modale
-function displayWorksModal(works) {
+function displayWorksModal() {
     const modalGalerie = document.querySelector('.gallery_modal')
-    gallery.innerHTML = ""
+    modalGalerie.innerHTML = ""
     const fragment = document.createDocumentFragment()
 
-    for (const work of works) {
+    for (const work of allWorks) {
         let creaFig = document.createElement('figure')
         creaFig.innerHTML = `
         <img src="${work.imageUrl}" alt="${work.title}">
@@ -190,3 +199,53 @@ function displayWorksModal(works) {
     }
     modalGalerie.append(fragment)
 }
+
+function createModalAdd() {
+    const btnAdd = document.querySelector('.addBtn')
+    btnAdd.addEventListener('click', (e) => {
+        const modalScreen = document.querySelector('.modalScreen')
+
+        modalScreen.innerHTML = `
+        <div class="arrow"><i class="fa-solid fa-arrow-left"></i>
+        <p class="modalCross modalToggle" id="closeModalAdd">X</p></div>
+        <h2>Ajout photo</h2>
+        <div class="picture">
+        <i class="fa-solid fa-image"></i>
+        <form method="post">
+        <label for="file"></label>
+        <input class="btnUpload" type="file" name"file" accept="image/png, image/jpeg">
+        <p>jpg, png : 4mo max</p></div>
+        <div class="labelStyle"><label for="text" class="labelAdd">Titre</label>
+        <input type="text" class="inputAdd">
+        <label for="category" class="labelAdd">Catégorie</label>
+        <select class="labelCat inputAdd" name="category">
+        </select></div>
+        <div class="modalFooter">
+        <div class="modalLine"></div>
+        <button class="addBtn">Valider</button></div></form>`
+        for (const idCat of allCats) {
+            const labelCat = document.querySelector('.labelCat')
+            let creatOption = document.createElement('option')
+            creatOption.innerHTML = `<option>${idCat.name}
+                                    </option>`
+            labelCat.append(creatOption)
+            openCloseModal("Add")
+        } 
+        //création AddEventListener pour la flèche retour.
+        const arrow = document.querySelector('.fa-arrow-left')
+        arrow.addEventListener('click', (e) => {
+            modalScreen.innerHTML = `<div class="cross"><p class="modalCross modalToggle" id="closeModalGallery">X</p></div>
+            <h2>Galerie photo</h2>
+            <div class="gallery_modal"></div>
+            <div class="modalFooter">
+            <div class="modalLine"></div>
+            <button class="addBtn">Ajouter une photo</button>
+            <p class="suppr">Supprimer la galerie</p>
+            </div>`
+            displayWorksModal()
+            openCloseModal("Gallery")
+            createModalAdd()
+        })
+    })
+}
+
