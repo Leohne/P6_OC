@@ -431,7 +431,7 @@ footer nav ul {
 .projet_placement {
 	display: flex;
 	flex-direction: row;
-	;
+	height: 15px;
 	margin-left: 15px;
 	margin-top: 15px;
 	font-size: 14px;
@@ -511,7 +511,7 @@ footer nav ul {
 	border-radius: 4px;
 	background-color: black;
 	padding: 4px;
-
+	cursor: pointer;
 }
 
 .gallery_modal img {
@@ -545,6 +545,10 @@ footer nav ul {
 	text-align: center;
 	border-radius: 60px;
 	cursor: pointer;
+}
+
+.addBtn:invalid {
+	background-color:#A7A7A7;
 }
 
 .addBtn+p {
@@ -585,7 +589,7 @@ footer nav ul {
 .btnUpload {
 	padding: 15px;
 	background: #CBD6DC;
-	border-radius: 50px
+	border-radius: 50px;	
 }
 
 .btnUpload+p {

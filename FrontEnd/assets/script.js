@@ -3,7 +3,6 @@ const token = localStorage.getItem("token")
 
 const allWorks = new Set()
 const allCats = new Set()
-const allWorksModal = new Set()
 
 async function init() {
     const works = await getDatabaseInfo("works")
@@ -21,6 +20,7 @@ async function init() {
         logout()
         createModalGallery()
         createModalAdd()
+        modalSuppr()
     }
 }
 init()
@@ -42,6 +42,7 @@ function displayWorks(works) {
 
     for (const work of works) {
         let creaFig = document.createElement('figure')
+        creaFig.id = "figure-" + work.id
         creaFig.innerHTML = `
         <img src="${work.imageUrl}" alt="${work.title}">
         <figcaption>${work.title}</figcaption>`
@@ -134,7 +135,7 @@ function logout() {
 }
 
 function openCloseModal(name) {
-    var modal = document.getElementById("modal" + name);
+    var modal = document.getElementById("modalGallery");
 
 
     // Ouvrir la modale
@@ -142,6 +143,7 @@ function openCloseModal(name) {
 
     // fermer la modale avec la croix
     var close_btn = document.querySelector("#closeModal" + name);
+
 
     // evenement pour ouvrir la modale
     btn.addEventListener("click", (e) => {
@@ -178,10 +180,11 @@ function createModalGallery() {
     modal.append(modalDiv)
     displayWorksModal()
     openCloseModal("Gallery")
+
 }
 
 // function inModalScreen {
-    
+
 // }
 //affichage des photos dans la modale
 function displayWorksModal() {
@@ -191,9 +194,10 @@ function displayWorksModal() {
 
     for (const work of allWorks) {
         let creaFig = document.createElement('figure')
+        creaFig.dataset.id = work.id
         creaFig.innerHTML = `
-        <img src="${work.imageUrl}" alt="${work.title}">
         <i class="fa-solid fa-trash-can"></i>
+        <img src="${work.imageUrl}" alt="${work.title}">        
         <figcaption>éditer</figcaption>`
         fragment.appendChild(creaFig)
     }
@@ -216,7 +220,7 @@ function createModalAdd() {
         <input class="btnUpload" type="file" name"file" accept="image/png, image/jpeg">
         <p>jpg, png : 4mo max</p></div>
         <div class="labelStyle"><label for="text" class="labelAdd">Titre</label>
-        <input type="text" class="inputAdd">
+        <input type="text" class="inputAdd" required>
         <label for="category" class="labelAdd">Catégorie</label>
         <select class="labelCat inputAdd" name="category">
         </select></div>
@@ -226,11 +230,10 @@ function createModalAdd() {
         for (const idCat of allCats) {
             const labelCat = document.querySelector('.labelCat')
             let creatOption = document.createElement('option')
-            creatOption.innerHTML = `<option>${idCat.name}
-                                    </option>`
+            creatOption.innerHTML = `<option>${idCat.name}</option>`
             labelCat.append(creatOption)
             openCloseModal("Add")
-        } 
+        }
         //création AddEventListener pour la flèche retour.
         const arrow = document.querySelector('.fa-arrow-left')
         arrow.addEventListener('click', (e) => {
@@ -249,3 +252,11 @@ function createModalAdd() {
     })
 }
 
+// Suppression d'une photo
+function modalSuppr() {
+    const trashs = document.querySelectorAll('.fa-trash-can')
+    for (const trash of trashs)
+        trash.addEventListener('click', (e) => {
+            e.target.dataset.id
+        })
+    }
