@@ -218,8 +218,7 @@ function createModalAdd() {
         <div class="pictureContain">
         <i class="fa-solid fa-image"></i>
         <form method="post" id="formModal">
-        <label for="file"></label>
-        <input class="btnUpload" type="file" onchange="readURL(this);" name="file" id="img">
+        <input class="btnUpload" type="file" name="img" id="img">
         <p>jpg, png : 4mo max</p></div></div>
         <div class="labelStyle"><label for="text" class="labelAdd">Titre</label>
         <input type="text" class="inputAdd" id="text" required>
@@ -236,7 +235,6 @@ function createModalAdd() {
             labelCat.append(creatOption)
             openCloseModal("Add")            
             modalPicture()
-            //readURL()
         }
         //création AddEventListener pour la flèche retour.
         const arrow = document.querySelector('.fa-arrow-left')
@@ -254,6 +252,9 @@ function createModalAdd() {
             createModalAdd()
             modalSuppr()
         })
+
+        const imgInput = document.querySelector("#img")
+        imgInput.addEventListener("change", readURL)
     })
 }
 
@@ -289,9 +290,13 @@ function modalPicture() {
 
     sendEvent.addEventListener('click', async (e) => {
         e.preventDefault()
-        const form = document.querySelector('#formModal')
+        const txt = document.querySelector('#text').value
+        const cat = document.querySelector('#category').value
 
-        const data = new FormData(form)
+        const data = new FormData()
+        data.append('image', img);
+        data.append('title', txt);
+        data.append('category', cat);
 
         const sendTest = await sendPicture(data)
         if (sendTest.error) {
@@ -306,10 +311,9 @@ async function sendPicture(data) {
     let response = await fetch('http://localhost:5678/api/works', {
         method: 'POST',
         headers: {
-            'Content-Type': 'multipart/form-data',
             'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(data)
+        body: data
     });
     if (response.ok) {
         return response.json()
@@ -320,15 +324,20 @@ async function sendPicture(data) {
 }
 
 // faire apparaitre l'image
-function readURL(input) {
+function readURL(event) {
+    const btn = event.target
     const pic = document.querySelector(".pictureContain")
-    if (input.files && input.files[0]) {
+    const temp_img = btn.files[0]
+    img = temp_img
+    if (btn.files && img) {
         const reader = new FileReader();
 
+    
         reader.onload = function (e) {
-            pic.innerHtml = `<img src="e.target.result"/>`
+            console.log(pic);
+            pic.innerHTML = `<img class="imgPreview" src="${e.target.result}"/>`
         };
 
-        reader.readAsDataURL(input.files[0]);
+        reader.readAsDataURL(img);
     }
 }
