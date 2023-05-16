@@ -580,7 +580,13 @@ footer nav ul {
 	height: 30%;
 }
 
+.pictureContain {
+	display: flex;
+	flex-direction: column;
+}
+
 .fa-image {
+	margin: 0 auto;
 	color: grey;
 	opacity: 0.3;
 	font-size: 500%;

@@ -3,6 +3,7 @@ const token = localStorage.getItem("token")
 
 const allWorks = new Set()
 const allCats = new Set()
+let img = ""
 
 async function init() {
     const works = await getDatabaseInfo("works")
@@ -174,7 +175,7 @@ function createModalGallery() {
         <div class="gallery_modal"></div>
         <div class="modalFooter">
         <div class="modalLine"></div>
-        <button class="addBtn">Ajouter une photo</button>
+        <button class="addBtn addBtnUn">Ajouter une photo</button>
         <p class="suppr">Supprimer la galerie</p>
         </div>`
     modal.append(modalDiv)
@@ -194,7 +195,7 @@ function displayWorksModal() {
 
     for (const work of allWorks) {
         let creaFig = document.createElement('figure')
-        creaFig.dataset.id = work.id
+        creaFig.dataset.modal = work.id
         creaFig.innerHTML = `
         <i class="fa-solid fa-trash-can"></i>
         <img src="${work.imageUrl}" alt="${work.title}">        
@@ -205,7 +206,7 @@ function displayWorksModal() {
 }
 
 function createModalAdd() {
-    const btnAdd = document.querySelector('.addBtn')
+    const btnAdd = document.querySelector('.addBtnUn')
     btnAdd.addEventListener('click', (e) => {
         const modalScreen = document.querySelector('.modalScreen')
 
@@ -214,25 +215,28 @@ function createModalAdd() {
         <p class="modalCross modalToggle" id="closeModalAdd">X</p></div>
         <h2>Ajout photo</h2>
         <div class="picture">
+        <div class="pictureContain">
         <i class="fa-solid fa-image"></i>
-        <form method="post">
+        <form method="post" id="formModal">
         <label for="file"></label>
-        <input class="btnUpload" type="file" name"file" accept="image/png, image/jpeg">
-        <p>jpg, png : 4mo max</p></div>
+        <input class="btnUpload" type="file" onchange="readURL(this);" name="file" id="img">
+        <p>jpg, png : 4mo max</p></div></div>
         <div class="labelStyle"><label for="text" class="labelAdd">Titre</label>
-        <input type="text" class="inputAdd" required>
+        <input type="text" class="inputAdd" id="text" required>
         <label for="category" class="labelAdd">Catégorie</label>
-        <select class="labelCat inputAdd" name="category">
+        <select class="labelCat inputAdd" id="category" name="category">
         </select></div>
         <div class="modalFooter">
         <div class="modalLine"></div>
-        <button class="addBtn">Valider</button></div></form>`
+        <input class="addBtn subBtn" type="submit" value="Valider"></div></form>`
         for (const idCat of allCats) {
             const labelCat = document.querySelector('.labelCat')
             let creatOption = document.createElement('option')
             creatOption.innerHTML = `<option>${idCat.name}</option>`
             labelCat.append(creatOption)
-            openCloseModal("Add")
+            openCloseModal("Add")            
+            modalPicture()
+            //readURL()
         }
         //création AddEventListener pour la flèche retour.
         const arrow = document.querySelector('.fa-arrow-left')
@@ -242,12 +246,13 @@ function createModalAdd() {
             <div class="gallery_modal"></div>
             <div class="modalFooter">
             <div class="modalLine"></div>
-            <button class="addBtn">Ajouter une photo</button>
+            <button class="addBtn addBtnUn">Ajouter une photo</button>
             <p class="suppr">Supprimer la galerie</p>
             </div>`
             displayWorksModal()
             openCloseModal("Gallery")
             createModalAdd()
+            modalSuppr()
         })
     })
 }
@@ -255,8 +260,75 @@ function createModalAdd() {
 // Suppression d'une photo
 function modalSuppr() {
     const trashs = document.querySelectorAll('.fa-trash-can')
-    for (const trash of trashs)
+
+    for (const trash of trashs) {
         trash.addEventListener('click', (e) => {
-            e.target.dataset.id
+            const targ = e.target.closest('figure')
+            const id = targ.dataset.modal
+            const imgGallery = document.querySelector("#figure-" + id)
+            const deleteTry = deleteDatabaseWork(id)
+            imgGallery.remove()
+            targ.remove()
         })
     }
+}
+
+function deleteDatabaseWork(id) {
+    let response = fetch('http://localhost:5678/api/works/' + id, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
+
+}
+
+//ajout d'une photo
+function modalPicture() {
+    const sendEvent = document.querySelector('.subBtn')
+
+    sendEvent.addEventListener('click', async (e) => {
+        e.preventDefault()
+        const form = document.querySelector('#formModal')
+
+        const data = new FormData(form)
+
+        const sendTest = await sendPicture(data)
+        if (sendTest.error) {
+            console.log("Non")
+        } else {
+            console.log("Ok")
+        }
+    })
+}
+
+async function sendPicture(data) {
+    let response = await fetch('http://localhost:5678/api/works', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'multipart/form-data',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(data)
+    });
+    if (response.ok) {
+        return response.json()
+    } else {
+        console.log(response);
+        return response.json()
+    }
+}
+
+// faire apparaitre l'image
+function readURL(input) {
+    const pic = document.querySelector(".pictureContain")
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+            pic.innerHtml = `<img src="e.target.result"/>`
+        };
+
+        reader.readAsDataURL(input.files[0]);
+    }
+}
