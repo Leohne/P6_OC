@@ -136,14 +136,14 @@ function logout() {
 }
 
 function openCloseModal(name) {
-    var modal = document.getElementById("modalGallery");
+    let modal = document.getElementById("modalGallery");
 
 
     // Ouvrir la modale
-    var btn = document.querySelector(".projet_placement");
+    let btn = document.querySelector(".projet_placement");
 
     // fermer la modale avec la croix
-    var close_btn = document.querySelector("#closeModal" + name);
+    let close_btn = document.querySelector("#closeModal" + name);
 
 
     // evenement pour ouvrir la modale
@@ -233,7 +233,7 @@ function createModalAdd() {
             let creatOption = document.createElement('option')
             creatOption.innerHTML = `<option>${idCat.name}</option>`
             labelCat.append(creatOption)
-            openCloseModal("Add")            
+            openCloseModal("Add")
             modalPicture()
         }
         //création AddEventListener pour la flèche retour.
@@ -301,8 +301,6 @@ function modalPicture() {
         const sendTest = await sendPicture(data)
         if (sendTest.error) {
             console.log("Non")
-        } else {
-            console.log("Ok")
         }
     })
 }
@@ -315,12 +313,6 @@ async function sendPicture(data) {
         },
         body: data
     });
-    if (response.ok) {
-        return response.json()
-    } else {
-        console.log(response);
-        return response.json()
-    }
 }
 
 // faire apparaitre l'image
@@ -332,9 +324,7 @@ function readURL(event) {
     if (btn.files && img) {
         const reader = new FileReader();
 
-    
         reader.onload = function (e) {
-            console.log(pic);
             pic.innerHTML = `<img class="imgPreview" src="${e.target.result}"/>`
         };
 
