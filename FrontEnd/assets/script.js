@@ -26,6 +26,20 @@ async function init() {
 }
 init()
 
+//fonction d'affichage dans condition
+function addModal() {
+    const modal = document.querySelector('.modalScreen')
+
+    modal.innerHTML = `<div class="cross"><p class="modalCross modalToggle" id="closeModalGallery">X</p></div>
+            <h2>Galerie photo</h2>
+            <div class="gallery_modal"></div>
+            <div class="modalFooter">
+            <div class="modalLine"></div>
+            <button class="addBtn addBtnUn">Ajouter une photo</button>
+            <p class="suppr">Supprimer la galerie</p>
+            </div>`
+}
+
 // requete serveur
 async function getDatabaseInfo(type) {
     const response = await fetch("http://localhost:5678/api/" + type)
@@ -231,20 +245,13 @@ function createModalAdd() {
             creatOption.value = idCat.id
             labelCat.append(creatOption)
         }
-            openCloseModal("Add")
-            modalPicture()
-            inputChange()
+        openCloseModal("Add")
+        modalPicture()
+        inputChange()
         //création AddEventListener pour la flèche retour.
         const arrow = document.querySelector('.fa-arrow-left')
         arrow.addEventListener('click', (e) => {
-            modalScreen.innerHTML = `<div class="cross"><p class="modalCross modalToggle" id="closeModalGallery">X</p></div>
-            <h2>Galerie photo</h2>
-            <div class="gallery_modal"></div>
-            <div class="modalFooter">
-            <div class="modalLine"></div>
-            <button class="addBtn addBtnUn">Ajouter une photo</button>
-            <p class="suppr">Supprimer la galerie</p>
-            </div>`
+            addModal()
             displayWorksModal()
             openCloseModal("Gallery")
             createModalAdd()
@@ -261,13 +268,23 @@ function modalSuppr() {
     const trashs = document.querySelectorAll('.fa-trash-can')
 
     for (const trash of trashs) {
-        trash.addEventListener('click', (e) => {
+        trash.addEventListener('click', async (e) => {
             const targ = e.target.closest('figure')
             const id = targ.dataset.modal
             const imgGallery = document.querySelector("#figure-" + id)
-            const deleteTry = deleteDatabaseWork(id)
-            imgGallery.remove()
-            targ.remove()
+            const deleteTry = await deleteDatabaseWork(id)
+            if (deleteTry.ok) {
+                for (const work of allWorks) {
+                    //Trouver l'objet avec l'id correspondant en tant que chaine de caractère
+                    if (work.id.toString() === id.toString()) {
+                        allWorks.delete(work);
+                        //arrêter la boucle lorsque l'id a été trouvé
+                        break;
+                      }
+                }
+                imgGallery.remove()
+                targ.remove()
+            }
         })
     }
 }
@@ -279,6 +296,7 @@ function deleteDatabaseWork(id) {
             'Authorization': `Bearer ${token}`
         }
     })
+    return response;
 }
 
 //ajout d'une photo
@@ -296,23 +314,23 @@ function modalPicture() {
         data.append('category', cat);
 
         const sendTest = await sendPicture(data)
-        if (sendTest.ok) {
+        if (sendTest.id) {
             console.log("Ajout réussi")
-        
-            const modal = document.querySelector('.modalScreen')
-
-            modal.innerHTML = `<div class="cross"><p class="modalCross modalToggle" id="closeModalGallery">X</p></div>
-            <h2>Galerie photo</h2>
-            <div class="gallery_modal"></div>
-            <div class="modalFooter">
-            <div class="modalLine"></div>
-            <button class="addBtn addBtnUn">Ajouter une photo</button>
-            <p class="suppr">Supprimer la galerie</p>
-            </div>`
-                displayWorksModal()
-                openCloseModal("Gallery")
-                createModalAdd()
-                modalSuppr()
+            allWorks.add(sendTest)
+            displayWorks()
+            addModal()
+            displayWorksModal()
+            openCloseModal("Gallery")
+            createModalAdd()
+            modalSuppr()
+        }else{
+            if(sendTest.error){
+                const fillError = document.querySelector('.labelStyle')
+               let fillIt = document.createElement('div')
+               fillIt.innerHTML = "Donnée incorrect"
+               fillIt.classList.add('fillIt')
+               fillError.append(fillIt)
+            }
         }
     })
 }
@@ -369,3 +387,4 @@ function readURL(event) {
         reader.readAsDataURL(img);
     }
 }
+
