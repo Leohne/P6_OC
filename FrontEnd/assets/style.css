@@ -586,20 +586,38 @@ footer nav ul {
 }
 
 .fa-image {
-	margin: 0 auto;
+	margin: 20px auto;
 	color: grey;
 	opacity: 0.3;
 	font-size: 500%;
 }
 
 .btnUpload {
-	padding: 15px;
-	background: #CBD6DC;
-	border-radius: 50px;	
+	border: 0;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;;	
 }
 
-.btnUpload+p {
-	margin: 10px;
+.fileUpload {
+	text-decoration: none;
+	color: #1D6154;
+	padding: 15px;
+	margin: 30px;
+	font-size: x-large;
+	background: #CBD6DC;
+	border-radius: 50px;
+}
+.fileUpload:visited {
+	color: #1D6154;
+}
+
+.paraModal{
+	margin: 30px auto;
 	text-align: center;
 }
 
@@ -624,6 +642,15 @@ footer nav ul {
 }
 
 .imgPreview {
-	max-width: 350px;
-	max-height: 200px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	max-width: 50vw;
+	max-height: 23vh;
+}
+
+.inforError {
+	color: red;
+	font-size: larger;
+	margin: 10px;
 }

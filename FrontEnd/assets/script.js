@@ -37,11 +37,11 @@ async function getDatabaseInfo(type) {
 }
 
 // mise en page des images 
-function displayWorks(works) {
+function displayWorks() {
     gallery.innerHTML = ""
     const fragment = document.createDocumentFragment()
 
-    for (const work of works) {
+    for (const work of allWorks) {
         let creaFig = document.createElement('figure')
         creaFig.id = "figure-" + work.id
         creaFig.innerHTML = `
@@ -138,7 +138,6 @@ function logout() {
 function openCloseModal(name) {
     let modal = document.getElementById("modalGallery");
 
-
     // Ouvrir la modale
     let btn = document.querySelector(".projet_placement");
 
@@ -181,12 +180,8 @@ function createModalGallery() {
     modal.append(modalDiv)
     displayWorksModal()
     openCloseModal("Gallery")
-
 }
 
-// function inModalScreen {
-
-// }
 //affichage des photos dans la modale
 function displayWorksModal() {
     const modalGalerie = document.querySelector('.gallery_modal')
@@ -218,8 +213,9 @@ function createModalAdd() {
         <div class="pictureContain">
         <i class="fa-solid fa-image"></i>
         <form method="post" id="formModal">
-        <input class="btnUpload" type="file" name="img" id="img">
-        <p>jpg, png : 4mo max</p></div></div>
+        <input class="btnUpload" type="file" name="img" id="img"required>
+        <a href="#" class="fileUpload">+ Ajouter photo</a></form>
+        <p class="paraModal">jpg, png : 4mo max</p></div></div>
         <div class="labelStyle"><label for="text" class="labelAdd">Titre</label>
         <input type="text" class="inputAdd" id="text" required>
         <label for="category" class="labelAdd">Catégorie</label>
@@ -227,15 +223,17 @@ function createModalAdd() {
         </select></div>
         <div class="modalFooter">
         <div class="modalLine"></div>
-        <input class="addBtn subBtn" type="submit" value="Valider"></div></form>`
+        <input class="addBtn subBtn" type="submit" value="Valider"></div>`
         for (const idCat of allCats) {
             const labelCat = document.querySelector('.labelCat')
             let creatOption = document.createElement('option')
             creatOption.innerHTML = `<option>${idCat.name}</option>`
+            creatOption.value = idCat.id
             labelCat.append(creatOption)
+        }
             openCloseModal("Add")
             modalPicture()
-        }
+            inputChange()
         //création AddEventListener pour la flèche retour.
         const arrow = document.querySelector('.fa-arrow-left')
         arrow.addEventListener('click', (e) => {
@@ -281,7 +279,6 @@ function deleteDatabaseWork(id) {
             'Authorization': `Bearer ${token}`
         }
     })
-
 }
 
 //ajout d'une photo
@@ -299,8 +296,23 @@ function modalPicture() {
         data.append('category', cat);
 
         const sendTest = await sendPicture(data)
-        if (sendTest.error) {
-            console.log("Non")
+        if (sendTest.ok) {
+            console.log("Ajout réussi")
+        
+            const modal = document.querySelector('.modalScreen')
+
+            modal.innerHTML = `<div class="cross"><p class="modalCross modalToggle" id="closeModalGallery">X</p></div>
+            <h2>Galerie photo</h2>
+            <div class="gallery_modal"></div>
+            <div class="modalFooter">
+            <div class="modalLine"></div>
+            <button class="addBtn addBtnUn">Ajouter une photo</button>
+            <p class="suppr">Supprimer la galerie</p>
+            </div>`
+                displayWorksModal()
+                openCloseModal("Gallery")
+                createModalAdd()
+                modalSuppr()
         }
     })
 }
@@ -313,19 +325,45 @@ async function sendPicture(data) {
         },
         body: data
     });
+    return response.json();
+}
+
+//Ouvrir l'input file via un lien <a>
+function inputChange() {
+    const link = document.querySelector('.fileUpload')
+    const inpFile = document.querySelector('.btnUpload')
+
+    link.addEventListener('click', (e) => {
+        e.preventDefault();
+        inpFile.click();
+    });
 }
 
 // faire apparaitre l'image
 function readURL(event) {
-    const btn = event.target
-    const pic = document.querySelector(".pictureContain")
-    const temp_img = btn.files[0]
-    img = temp_img
+    const btn = event.target;
+    const pic = document.querySelector(".pictureContain");
+    const temp_img = btn.files[0];
+    if (temp_img && temp_img.size > 4 * 1024 * 1024) {
+
+        // Si la taille du fichier dépasse 4 Mo (4 * 1024 * 1024 bytes)
+        const infoPicture = document.querySelector('.paraModal')
+        const infoError = document.createElement('div')
+        infoError.classList.add('inforError')
+        infoError.innerHTML = "Fichier trop volumineux"
+        infoPicture.appendChild(infoError)
+        return;
+    }
+
+    img = temp_img;
+
     if (btn.files && img) {
+
+        // Création d'un objet FileReader pour lire le contenu du fichier
         const reader = new FileReader();
 
-        reader.onload = function (e) {
-            pic.innerHTML = `<img class="imgPreview" src="${e.target.result}"/>`
+        reader.onload = (e) => {
+            pic.innerHTML = `<img class="imgPreview" src="${e.target.result}" />`;
         };
 
         reader.readAsDataURL(img);
