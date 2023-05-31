@@ -51,11 +51,11 @@ async function getDatabaseInfo(type) {
 }
 
 // mise en page des images 
-function displayWorks() {
+function displayWorks(works) {
     gallery.innerHTML = ""
     const fragment = document.createDocumentFragment()
 
-    for (const work of allWorks) {
+    for (const work of works) {
         let creaFig = document.createElement('figure')
         creaFig.id = "figure-" + work.id
         creaFig.innerHTML = `
