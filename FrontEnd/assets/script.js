@@ -89,6 +89,7 @@ function displayCatsContainer() {
     addFiltterListener()
 }
 
+//filtre de la gallerie
 function addFiltterListener() {
     const buttons = document.querySelectorAll(".filtre")
     for (const button of buttons) {
@@ -106,7 +107,6 @@ function addFiltterListener() {
         })
     }
 }
-
 
 
 // fonction de l'affichage accueil avec accès login.
