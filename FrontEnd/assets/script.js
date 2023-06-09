@@ -317,7 +317,7 @@ function modalPicture() {
         if (sendTest.id) {
             console.log("Ajout réussi")
             allWorks.add(sendTest)
-            displayWorks()
+            displayWorks(allWorks)
             addModal()
             displayWorksModal()
             openCloseModal("Gallery")
